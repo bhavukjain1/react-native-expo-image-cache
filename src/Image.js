@@ -14,7 +14,8 @@ type ImageProps = {
     preview?: ImageSourcePropType,
     uri: string,
     transitionDuration?: number,
-    tint?: "dark" | "light"
+    tint?: "dark" | "light",
+    isBlurViewHidden?: bool
 };
 
 type ImageState = {
@@ -28,7 +29,8 @@ export default class Image extends React.Component<ImageProps, ImageState> {
 
     static defaultProps = {
         transitionDuration: 300,
-        tint: "dark"
+        tint: "dark",
+        isBlurViewHidden:false
     };
 
     state = {
@@ -68,7 +70,7 @@ export default class Image extends React.Component<ImageProps, ImageState> {
     }
 
     render(): React.Node {
-        const {preview, style, defaultSource, tint, ...otherProps} = this.props;
+        const {preview, isBlurViewHidden, style, defaultSource, tint, ...otherProps} = this.props;
         const {uri, intensity} = this.state;
         const hasDefaultSource = !!defaultSource;
         const hasPreview = !!preview;
@@ -100,9 +102,8 @@ export default class Image extends React.Component<ImageProps, ImageState> {
                     hasPreview && (
                         <RNImage
                             source={preview}
-                            resizeMode="cover"
                             style={computedStyle}
-                            blurRadius={Platform.OS === "android" ? 0.5 : 0}
+                            {...otherProps}
                         />
                     )
                 }
@@ -116,12 +117,12 @@ export default class Image extends React.Component<ImageProps, ImageState> {
                     )
                 }
                 {
-                    hasPreview && Platform.OS === "ios" && (
+                    !isBlurViewHidden && hasPreview && Platform.OS === "ios" && (
                         <AnimatedBlurView style={computedStyle} {...{intensity, tint}} />
                     )
                 }
                 {
-                    hasPreview && Platform.OS === "android" && (
+                    !isBlurViewHidden && hasPreview && Platform.OS === "android" && (
                         <Animated.View
                             style={[computedStyle, { backgroundColor: tint === "dark" ? black : white, opacity }]}
                         />
